@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>UzService</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1226;--bg2:#101b38;--card:#14213f;--line:#243560;--tx:#eef2ff;--mut:#8d9bc4;--tile:#2f6bff;--mint:#2ee6c5;--sun:#ffc24d;--bad:#ff6b7a;--tab:rgba(10,18,38,.88);color-scheme:dark}
+:root[data-theme=light]{--bg:#eef1f8;--bg2:#e2e8f6;--card:#fff;--line:#d5dcee;--tx:#0d1530;--mut:#5d6b94;--mint:#0b9d84;--sun:#b9770a;--tab:rgba(238,241,248,.9);color-scheme:light}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{font:15px/1.45 Onest,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx);padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(96px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3,.num{font-family:Unbounded,Onest,system-ui,sans-serif;font-weight:700;letter-spacing:-.01em}
+h2{font-size:18px;margin:22px 0 10px}h3{font-size:16px}
+button,input{font:inherit;color:inherit}
+.mut{color:var(--mut);font-size:13px}
+.top{display:flex;align-items:center;gap:12px}
+.av{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--tile),var(--mint));display:grid;place-items:center;font-weight:700;color:#04101f}
+.top b{display:block;font-size:16px}
+.wallet{position:relative;overflow:hidden;margin-top:16px;padding:20px;border-radius:26px 26px 26px 6px;background:var(--tile);color:#fff;
+ background-image:conic-gradient(from 45deg at 50% 50%,rgba(255,255,255,.10) 0 25%,transparent 0 50%,rgba(255,255,255,.10) 0 75%,transparent 0);background-size:34px 34px}
+.wallet::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,transparent 30%,rgba(5,12,40,.55));pointer-events:none}
+.wallet>*{position:relative;z-index:1}
+.wallet .num{font-size:34px;margin:4px 0 14px}.wallet .num small{font-size:15px;font-weight:500;opacity:.8}
+.btns{display:flex;gap:10px}
+.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:600;background:var(--mint);color:#04201a;cursor:pointer;transition:transform .12s}
+.btn:active{transform:scale(.97)}.btn.ghost{background:rgba(255,255,255,.18);color:#fff}.btn.full{width:100%;margin-top:14px;padding:14px}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.quick button{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 4px;display:grid;gap:6px;justify-items:center;font-size:12px;cursor:pointer}
+.quick i{font-style:normal;font-size:22px}
+.plats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plat{border:1px solid var(--line);background:var(--card);border-radius:22px 22px 22px 8px;padding:16px;text-align:left;display:grid;gap:10px;cursor:pointer}
+.plat i{font-style:normal;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:var(--c)}
+.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.row .g{flex:1;min-width:0}.row b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .pr{font-weight:600;color:var(--mint);white-space:nowrap}
+.fl{font-size:26px}
+.pill{font-size:12px;padding:3px 10px;border-radius:99px;background:var(--bg2);white-space:nowrap}
+.pill.completed{color:var(--mint)}.pill.processing{color:var(--sun)}.pill.canceled{color:var(--bad)}
+.back{border:0;background:none;color:var(--mut);padding:8px 0;margin-bottom:4px;cursor:pointer}
+.search,.field{width:100%;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin:6px 0 12px;outline:0}
+.search:focus,.field:focus{border-color:var(--tile)}
+label{display:block;margin-top:12px;font-size:13px;color:var(--mut)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}.stat b{font-size:17px}
+.empty{text-align:center;padding:36px 10px;color:var(--mut)}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:var(--tab);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line)}
+nav button{flex:1;min-width:0;border:0;background:none;color:var(--mut);display:grid;gap:2px;justify-items:center;font-size:11px;padding:6px 0;border-radius:12px;cursor:pointer}
+nav button i{font-style:normal;font-size:20px}nav button.on{color:var(--tx);background:var(--bg2)}
+#ov{position:fixed;inset:0;background:rgba(2,6,20,.6);opacity:0;pointer-events:none;transition:opacity .2s}
+#ov.on{opacity:1;pointer-events:auto}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:88vh;overflow:auto;background:var(--bg2);border-radius:26px 26px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);border-top:1px solid var(--line)}
+#sheet.on{transform:none}
+.tot{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.tot b{font-family:Unbounded,sans-serif;font-size:20px;color:var(--mint)}
+.copy{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border:1px dashed var(--tile);border-radius:14px;padding:12px 14px;margin-top:10px;font-family:Unbounded,sans-serif;font-size:14px}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translate(-50%,-140%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:600;transition:transform .25s;z-index:9;max-width:90%}
+#toast.on{transform:translate(-50%,0)}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav id="tabs"></nav>
+<div id="ov" data-act="close"></div>
+<div id="sheet" role="dialog" aria-modal="true"></div>
+<div id="toast" role="status"></div>
+<script>
+const tg = window.Telegram && Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+document.documentElement.dataset.theme = (tg && tg.colorScheme) || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+
+/* Sahifa bot serveridan ochilsa, API shu manzilning o‘zi bo‘ladi. Fayl brauzerda ochilsa, namuna rejimi ishlaydi.
+   Boshqa serverga ulash uchun: ?api=https://domen.uz */
+const API = new URLSearchParams(location.search).get("api") || (/^https?:/.test(location.protocol) ? location.origin : "");
+let BOT = "UzServiceBot";
+let CARD = { num: "9860 1766 1856 4593", owner: "Sh Shamuratova" };
+
+const U = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || {};
+let D = {
+  user: { name: U.first_name || "Mehmon", id: U.id || 0, balance: 125000, deposit: 300000, ref: 3, refSum: 1050 },
+  platforms: [
+    { k: "tg", t: "Telegram", i: "✈️", c: "#2aabee", cats: [
+      { t: "Obunachilar (kafolatli)", s: [{ id: "tg_1111", n: "30 kun", p: 6000, m: 100, sp: "s" }, { id: "tg_1113", n: "90 kun", p: 9500, m: 100, sp: "s" }, { id: "tg_1116", n: "Lifetime", p: 18000, m: 100, sp: "s" }] },
+      { t: "Ko‘rishlar", s: [{ id: "tg_22427", n: "Tezkor arzon", p: 240, m: 100, sp: "t" }, { id: "tg_7745", n: "Ultra tezkor", p: 360, m: 100, sp: "t" }] }] },
+    { k: "ig", t: "Instagram", i: "📸", c: "#e1306c", cats: [
+      { t: "Obunachilar", s: [{ id: "ig_24044", n: "Arzon, 30 kun", p: 5200, m: 100, sp: "s" }, { id: "ig_24050", n: "Real, 30 kun", p: 8600, m: 100, sp: "s" }] },
+      { t: "Layk va ko‘rishlar", s: [{ id: "ig_184", n: "HQ layk", p: 1700, m: 100, sp: "s" }, { id: "ig_1552", n: "Video ko‘rish", p: 120, m: 100, sp: "t" }] }] },
+    { k: "tt", t: "TikTok", i: "🎵", c: "#25f4ee", cats: [
+      { t: "Ko‘rishlar", s: [{ id: "tt_2143", n: "Ultra tez", p: 100, m: 100, sp: "t" }] },
+      { t: "Layk", s: [{ id: "tt_1026", n: "Arzon layk", p: 240, m: 100, sp: "t" }] }] },
+    { k: "yt", t: "YouTube", i: "▶️", c: "#ff4d4d", cats: [
+      { t: "Ko‘rishlar", s: [{ id: "yt_1130", n: "Views", p: 4600, m: 100, sp: "t" }] }] },
+    { k: "fb", t: "Facebook", i: "📘", c: "#4c8bf5", cats: [
+      { t: "Obunachilar", s: [{ id: "fb_158", n: "Followers HQ", p: 3900, m: 100, sp: "t" }] }] },
+    { k: "x", t: "Twitter (X)", i: "✖️", c: "#9aa4bf", cats: [
+      { t: "Ko‘rishlar", s: [{ id: "x_23996", n: "Tweet views", p: 100, m: 100, sp: "t" }] }] }
+  ],
+  numbers: [
+    { id: 1, n: "Yaman", f: "🇾🇪", p: 8500, c: 120 }, { id: 2, n: "Misr", f: "🇪🇬", p: 6000, c: 340 },
+    { id: 3, n: "AQSH", f: "🇺🇸", p: 17500, c: 90 }, { id: 4, n: "Qozog‘iston", f: "🇰🇿", p: 47000, c: 22 },
+    { id: 5, n: "Hindiston", f: "🇮🇳", p: 16500, c: 210 }, { id: 6, n: "Indoneziya", f: "🇮🇩", p: 6000, c: 500 }
+  ],
+  market: [
+    { id: 1, k: "group", t: "Kino va seriallar kanali", p: 450000, m: 12400, y: 2020 },
+    { id: 2, k: "group", t: "Toshkent ish e’lonlari", p: 900000, m: 31800, y: 2019 },
+    { id: 3, k: "gift", t: "Premium gift to‘plami", p: 120000, m: 0, y: 0 }
+  ],
+  orders: [
+    { id: 1048, n: "Obunachilar 30 kun", q: 1000, a: 6000, s: "processing" },
+    { id: 1031, n: "Video ko‘rish", q: 5000, a: 600, s: "completed" }
+  ]
+};
+
+const S = { tab: "home", p: null, c: null, q: "" };
+const $ = s => document.querySelector(s);
+const fmt = n => Math.round(n).toString().replace(/\B(?=(\d{3})+$)/g, " ");
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const tap = () => tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light");
+const STAT = { processing: "Jarayonda", completed: "Tugallangan", canceled: "Bekor qilingan" };
+
+async function api(path, body) {
+  if (!API) return null;
+  const r = await fetch(API + path, { method: body ? "POST" : "GET", headers: { "Content-Type": "application/json", "X-Init-Data": tg ? tg.initData : "" }, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || "Xatolik");
+  return j;
+}
+async function refresh() { try { const r = await api("/api/bootstrap"); if (r) { D = r; render(); } } catch (e) {} }
+function pollSms(id) {
+  let n = 0; clearInterval(pollSms.t);
+  pollSms.t = setInterval(async () => {
+    const b = $("#smsbox");
+    if (!b || ++n > 230) return clearInterval(pollSms.t);
+    try {
+      const j = await api("/api/number/" + id);
+      if (j.status === "done") { b.innerHTML = `<span>${esc(j.code)}</span><button class="btn" data-act="copy" data-v="${esc(j.code)}">Nusxa</button>`; clearInterval(pollSms.t); toast("SMS kodi keldi"); }
+      else if (j.status === "refunded") { b.innerHTML = `<span class="mut" style="font-family:Onest">SMS kelmadi, pul qaytarildi</span>`; clearInterval(pollSms.t); refresh(); }
+    } catch (e) {}
+  }, 4000);
+}
+function toast(t) { const e = $("#toast"); e.textContent = t; e.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove("on"), 2400); }
+function sheet(html) { $("#sheet").innerHTML = html; $("#sheet").classList.add("on"); $("#ov").classList.add("on"); }
+function close() { $("#sheet").classList.remove("on"); $("#ov").classList.remove("on"); }
+
+const svcRow = (s, p) => `<button class="row" data-act="svc" data-p="${p.k}" data-id="${s.id}"><span class="fl">${s.sp === "t" ? "⚡" : "🐢"}</span><span class="g"><b>${esc(s.n)}</b><span class="mut">${esc(p.t)}, eng kami ${fmt(s.m)} ta</span></span><span class="pr">${fmt(s.p)}<small> so‘m</small></span></button>`;
+
+function home() {
+  const u = D.user, top = D.platforms.flatMap(p => p.cats.flatMap(c => c.s.map(s => [s, p]))).filter(x => x[0].sp === "t").slice(0, 4);
+  return `<div class="top"><div class="av">${esc(u.name[0] || "U")}</div><div><span class="mut">Xush kelibsiz</span><b>${esc(u.name)}</b></div></div>
+  <section class="wallet"><span>Hisobingiz</span><div class="num">${fmt(u.balance)} <small>so‘m</small></div>
+  <div class="btns"><button class="btn" data-act="topup">Hisob to‘ldirish</button><button class="btn ghost" data-act="tab" data-t="profile">Promo-kod</button></div></section>
+  <div class="quick"><button data-act="tab" data-t="services"><i>🛍</i>Xizmatlar</button><button data-act="tab" data-t="numbers"><i>📲</i>Nomer</button><button data-act="tab" data-t="orders"><i>🧾</i>Buyurtma</button><button data-act="tab" data-t="profile"><i>👥</i>Do‘stlar</button></div>
+  <h2>Tezkor xizmatlar</h2>${top.map(([s, p]) => svcRow(s, p)).join("")}`;
+}
+function services() {
+  if (!S.p) return `<h2 style="margin-top:6px">Qaysi tarmoq?</h2><div class="plats">${D.platforms.map(p => `<button class="plat" data-act="plat" data-p="${p.k}"><i style="--c:${p.c}">${p.i}</i><b>${esc(p.t)}</b><span class="mut">${p.cats.length} bo‘lim</span></button>`).join("")}</div>`;
+  const p = D.platforms.find(x => x.k === S.p);
+  if (S.c === null) return `<button class="back" data-act="back">‹ Tarmoqlar</button><h2 style="margin-top:0">${esc(p.t)}</h2>${p.cats.map((c, i) => `<button class="row" data-act="cat" data-i="${i}"><span class="g"><b>${esc(c.t)}</b><span class="mut">${c.s.length} ta xizmat</span></span>›</button>`).join("")}`;
+  const c = p.cats[S.c];
+  return `<button class="back" data-act="back">‹ ${esc(p.t)}</button><h2 style="margin-top:0">${esc(c.t)}</h2><p class="mut" style="margin-bottom:10px">Narxlar 1000 tasi uchun</p>${c.s.map(s => svcRow(s, p)).join("")}`;
+}
+function numbers() {
+  const q = S.q.trim().toLowerCase(), list = D.numbers.filter(n => n.n.toLowerCase().includes(q));
+  return `<h2 style="margin-top:6px">Telegram nomerlari</h2><p class="mut">SMS kodi kelishi bilan shu yerda va botda ko‘rinadi. 15 daqiqada kelmasa, pul qaytariladi.</p>
+  <input class="search" id="sq" placeholder="Davlatni qidiring" value="${esc(S.q)}" autocomplete="off">
+  ${list.length ? list.map(n => `<button class="row" data-act="num" data-id="${n.id}"><span class="fl">${n.f}</span><span class="g"><b>${esc(n.n)}</b><span class="mut">${n.c} ta bor</span></span><span class="pr">${fmt(n.p)}<small> so‘m</small></span></button>`).join("") : `<div class="empty">Bunday davlat topilmadi.<br>Boshqa nom bilan qidirib ko‘ring.</div>`}`;
+}
+function orders() {
+  return `<h2 style="margin-top:6px">Buyurtmalarim</h2>` + (D.orders.length ? D.orders.map(o => `<div class="row" style="cursor:default"><span class="g"><b>${esc(o.n)}</b><span class="mut">№${o.id}, ${fmt(o.q)} ta, ${fmt(o.a)} so‘m</span></span><span class="pill ${o.s}">${STAT[o.s] || o.s}</span></div>`).join("") : `<div class="empty">Hali buyurtma yo‘q.<br>Xizmatlar bo‘limidan birinchisini bering.</div>`);
+}
+function profile() {
+  const u = D.user, link = `https://t.me/${BOT}?start=${u.id}`;
+  return `<div class="top"><div class="av">${esc(u.name[0] || "U")}</div><div><b>${esc(u.name)}</b><span class="mut">ID ${u.id}</span></div></div>
+  <div class="stats"><div class="stat"><span class="mut">Hisob</span><br><b>${fmt(u.balance)}</b></div><div class="stat"><span class="mut">Kiritilgan</span><br><b>${fmt(u.deposit)}</b></div><div class="stat"><span class="mut">Takliflar</span><br><b>${u.ref} ta</b></div><div class="stat"><span class="mut">Bonus</span><br><b>${fmt(u.refSum)}</b></div></div>
+  <h2>Do‘st taklif qiling</h2><p class="mut">Har bir do‘st uchun 350 so‘m. Do‘stingiz ro‘yxatdan o‘tib, kanalga obuna bo‘lsa, bonus avtomatik tushadi.</p>
+  <div class="copy"><span style="font-size:12px;word-break:break-all">${esc(link)}</span><button class="btn" data-act="copy" data-v="${esc(link)}">Nusxa</button></div>
+  <h2>Promo-kod</h2><div class="btns"><input class="field" id="pc" placeholder="Kodni kiriting" style="margin:0"><button class="btn" data-act="promo">Qo‘llash</button></div>
+  <h2>Yordam</h2><button class="row" data-act="link" data-v="https://t.me/UzServiceGlobal_admin"><span class="g"><b>Admin bilan bog‘lanish</b><span class="mut">@UzServiceGlobal_admin</span></span>›</button>
+  <button class="row" data-act="link" data-v="https://t.me/UzServiceGlobal"><span class="g"><b>Yangiliklar kanali</b><span class="mut">@UzServiceGlobal</span></span>›</button>`;
+}
+
+function market() {
+  const ic = { group: "👥", gift: "🎁", other: "📦" };
+  return `<h2 style="margin-top:6px">Bozor</h2><p class="mut" style="margin-bottom:12px">Guruh, kanal va giftlar xavfsiz sotiladi: pul bitim tugaguncha bot’da saqlanadi. Sotish uchun botda 🏪 Bozor, keyin E’lon berish ni bosing.</p>` +
+    ((D.market || []).length ? D.market.map(i => `<button class="row" data-act="link" data-v="https://t.me/${BOT}?start=mk_${i.id}"><span class="fl">${ic[i.k] || "📦"}</span><span class="g"><b>${esc(i.t)}</b><span class="mut">${i.m ? fmt(i.m) + " a’zo, " : ""}${i.y ? i.y + "-yil" : "tekshirilgan e’lon"}</span></span><span class="pr">${fmt(i.p)}<small> so‘m</small></span></button>`).join("") : `<div class="empty">Hozircha e’lon yo‘q.<br>Birinchi bo‘lib sotuvga qo‘ying.</div>`);
+}
+const TABS = [["home", "🏠", "Bosh"], ["services", "🛍", "Xizmat"], ["numbers", "📲", "Nomer"], ["market", "🏪", "Bozor"], ["orders", "🧾", "Buyurtma"], ["profile", "👤", "Profil"]];
+const VIEWS = { home, services, numbers, market, orders, profile };
+function render() {
+  $("#app").innerHTML = VIEWS[S.tab]();
+  $("#tabs").innerHTML = TABS.map(t => `<button class="${S.tab === t[0] ? "on" : ""}" data-act="tab" data-t="${t[0]}" aria-label="${t[2]}"><i>${t[1]}</i>${t[2]}</button>`).join("");
+  const sq = $("#sq");
+  if (sq) { sq.oninput = e => { S.q = e.target.value; const pos = e.target.selectionStart; render(); const n = $("#sq"); n.focus(); n.setSelectionRange(pos, pos); }; }
+}
+
+function orderSheet(s, p) {
+  sheet(`<h3>${esc(p.t)}, ${esc(s.n)}</h3><p class="mut">${fmt(s.p)} so‘m / 1000 ta, ${s.sp === "t" ? "tezkor" : "sekin, lekin barqaror"}</p>
+  <label for="q">Miqdor (kamida ${fmt(s.m)})</label><input class="field" id="q" type="number" inputmode="numeric" value="${s.m}">
+  <label for="l">Link yoki username</label><input class="field" id="l" placeholder="https://t.me/kanal" autocomplete="off">
+  <div class="tot"><span class="mut">Jami</span><b id="t">0</b></div><button class="btn full" data-act="buy" data-id="${s.id}" data-p="${p.k}">Buyurtma berish</button>`);
+  const calc = () => $("#t").textContent = fmt(Math.ceil(s.p / 1000 * (+$("#q").value || 0))) + " so‘m";
+  $("#q").oninput = calc; calc();
+}
+function topupSheet() {
+  sheet(`<h3>Hisob to‘ldirish</h3><p class="mut">Kartaga o‘tkazing, so‘ng chekni botga yuboring. Admin tasdiqlagach pul tushadi.</p>
+  <div class="copy"><span>${CARD.num}</span><button class="btn" data-act="copy" data-v="${CARD.num.replace(/ /g, "")}">Nusxa</button></div>
+  <p class="mut" style="margin-top:8px">Karta egasi: ${CARD.owner}</p>
+  <button class="btn full" data-act="link" data-v="https://t.me/${BOT}">Chekni botga yuborish</button>`);
+}
+
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const a = el.dataset.act, d = el.dataset; tap();
+  if (a === "tab") { S.tab = d.t; S.p = S.c = null; render(); window.scrollTo(0, 0); }
+  else if (a === "plat") { S.p = d.p; S.c = null; render(); }
+  else if (a === "cat") { S.c = +d.i; render(); }
+  else if (a === "back") { if (S.c !== null) S.c = null; else S.p = null; render(); }
+  else if (a === "close") close();
+  else if (a === "svc") { const p = D.platforms.find(x => x.k === d.p); orderSheet(p.cats.flatMap(c => c.s).find(s => s.id === d.id), p); }
+  else if (a === "topup") topupSheet();
+  else if (a === "copy") { try { await navigator.clipboard.writeText(d.v); toast("Nusxa olindi"); } catch { toast(d.v); } }
+  else if (a === "link") { /t\.me/.test(d.v) && tg ? tg.openTelegramLink(d.v) : window.open(d.v, "_blank"); }
+  else if (a === "promo") {
+    const v = $("#pc").value.trim(); if (!v) return toast("Promo-kodni kiriting");
+    try { const r = await api("/api/promo", { code: v }); if (r) D.user.balance = r.balance; toast(r ? "Promo-kod qo‘llandi" : "Namuna rejimi: serverga ulang"); render(); } catch (x) { toast(x.message); }
+  }
+  else if (a === "buy") {
+    const p = D.platforms.find(x => x.k === d.p), s = p.cats.flatMap(c => c.s).find(x => x.id === d.id);
+    const q = +$("#q").value, link = $("#l").value.trim(), total = Math.ceil(s.p / 1000 * q);
+    if (!(q >= s.m)) return toast("Kamida " + fmt(s.m) + " ta kiriting");
+    if (s.x && q > s.x) return toast("Ko‘pi bilan " + fmt(s.x) + " ta");
+    if (!link) return toast("Link yoki username kiriting");
+    if (total > D.user.balance) return toast("Balans yetarli emas. Avval hisobni to‘ldiring");
+    try {
+      const r = await api("/api/order", { service: s.id, qty: q, link });
+      if (r) D.user.balance = r.balance; else D.user.balance -= total;
+      D.orders.unshift({ id: r ? r.id : Date.now() % 100000, n: s.n, q, a: total, s: "processing" });
+      close(); S.tab = "orders"; render(); toast("Buyurtma yuborildi");
+    } catch (x) { toast(x.message); }
+  }
+  else if (a === "num") {
+    const n = D.numbers.find(x => x.id == d.id);
+    sheet(`<h3>${n.f} ${esc(n.n)}</h3><p class="mut">Telegram uchun nomer. SMS 15 daqiqada kelmasa, ${fmt(n.p)} so‘m qaytariladi.</p>
+    <div class="tot"><span class="mut">Narx</span><b>${fmt(n.p)} so‘m</b></div><button class="btn full" data-act="nbuy" data-id="${n.id}">Nomer olish</button>`);
+  }
+  else if (a === "nbuy") {
+    const n = D.numbers.find(x => x.id == d.id);
+    if (n.p > D.user.balance) return toast("Balans yetarli emas. Avval hisobni to‘ldiring");
+    try {
+      const r = await api("/api/number", { country: n.id });
+      if (r) D.user.balance = r.balance; else D.user.balance -= n.p;
+      close(); render();
+      sheet(`<h3>Nomer tayyor</h3><div class="copy"><span>${r ? esc(r.number) : "+000 000 00 00"}</span><button class="btn" data-act="copy" data-v="${r ? esc(r.number) : ""}">Nusxa</button></div>
+      <p class="mut" style="margin-top:12px">Raqamni Telegram ilovasiga kiriting. SMS kodi shu yerda va bot chatida ko‘rinadi.</p>${r ? "" : `<p class="mut">Namuna rejimi: haqiqiy nomer uchun serverga ulang.</p>`}
+      ${r ? `<div class="copy" id="smsbox"><span class="mut" style="font-family:Onest">SMS kutilmoqda...</span></div>` : ""}
+      <button class="btn full" data-act="close">Tushunarli</button>`);
+      if (r) pollSms(r.id);
+    } catch (x) { toast(x.message); }
+  }
+});
+
+(async () => { try { const r = await api("/api/bootstrap"); if (r) { BOT = r.bot || BOT; CARD = r.card || CARD; D = r; } } catch (e) { toast("Ma’lumotni yuklab bo‘lmadi"); } render(); })();
+</script>
+</body>
+</html>
